@@ -1,15 +1,78 @@
 <html>
 <head>
+  <style>
+  .box {
+    display:block;
+    text-align:center;
+    padding:10px;
+    margin:20px;
+    font-size:2em;
+    width:90%;
+    text-decoration:none;
+  }
+  .box-info {
+    color:#f09;
+    background-color:#369;
+  }
+  .box-error {
+    color:#f00;
+    background-color:#dd0;
+  }
+  </style>
+  
 <script>
-function go() {
-  console.log('html init');
-  window.location='http://app.laolin.com/online-app-index/';
+//txt:文字
+//stle:'info' or 'error'
+function msg(txt,style) {
+  document.getElementById('info-box').
+    innerHTML=("<div class='box box-"+style+"'>"+txt+"</div>");
+  return 0;
 }
-go();
+
+  /// 调用一个url（这个URL返回js）并执行之，用于跨域ajax
+  /// 参考baidu自己各站点跨域ajax的方法的
+  loadJs=function (id,url){
+     oScript = document.getElementById(id);
+     var head = document.getElementsByTagName("head").item(0);
+     if (oScript) {
+        head.removeChild(oScript);
+     }
+     oScript = document.createElement("script");
+     oScript.setAttribute("src", url);
+     oScript.setAttribute("id",id);
+     oScript.setAttribute("type","text/javascript");
+     oScript.setAttribute("language","javascript");
+     head.appendChild(oScript);
+     return oScript;
+  }
+  
+</script>
+<script>
+function try_goto(data) {
+  console.log('html init');
+  if(typeof(data)=='object' && data.hasOwnProperty('err_code') ){
+    if(data['err_code']!=0) {
+      return msg('[err_code='+data['err_code']+'],err_msg='+data['err_msg'],'error');
+    }
+  } else {
+    return msg('Error return data format.','error');
+  }
+  //msg(data.value[0],'info');
+  window.location=data.value[0];
+}
+
+
+function getUrlApi()
+{
+  setTimeout(function(){ msg('Loading Error','error');},6000);
+  msg('Loading ...','info');
+  loadJs('js_id_goto',"http://api.laolin.com/LaoLinOnlinePocketUrl&js=1&callback=try_goto");
+  return false;
+}
 </script>
 </head>
-<body>
-<a style='display:block;text-align:center;color:#f09;background-color:#369;padding:10px;margin:20px;font-size:2em;width:90%;text-decoration:none'
- href='http://app.laolin.com/online-app-index/'> Start </a>
+<body onload='getUrlApi()'>
+  <a class='box box-info' href='#'  onclick='getUrlApi()'> Start </a>
+      <div class='box' id='info-box'></div>
 </body>
 </html>
